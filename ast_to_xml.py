@@ -80,7 +80,7 @@ def source(src, xpath, dedent=True):
             continue
         if dedent:
             src = textwrap.dedent(src)
-        sources.append(src)
+        sources.append((src, node.attrib))
 
     return sources
 

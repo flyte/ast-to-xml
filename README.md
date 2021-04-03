@@ -286,7 +286,8 @@ You may now query `xml_tree` with xpath to get details of various sections of th
 Use the `source()`, `file_source()` and `module_source()` functions to get source code for the given xpath query:
 
 ```python
->>> print(file_source("code.py", "//FunctionDef[name='a_subfunction']")[0])
+>>> source, _ = file_source("code.py", "//FunctionDef[name='a_subfunction']")[0]
+>>> print(source)
 def a_subfunction(arg1, kwarg1=None):
     print("Hello, World!")
 ```
