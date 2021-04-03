@@ -271,14 +271,29 @@ You may now query `xml_tree` with xpath to get details of various sections of th
 [<Element FunctionDef at 0x7f89780e41c0>, <Element FunctionDef at 0x7f89780e42c0>, <Element FunctionDef at 0x7f89780e4280>, <Element FunctionDef at 0x7f89780e4100>]
 
 >>> # Get the line numbers of the `s_subfunction` function
->>> xml_tree.xpath("./body/FunctionDef[@name='a_function']/body/FunctionDef[@name='a_subfunction']")[0].attrib
-{'name': 'a_subfunction', 'lineno': '6', 'col_offset': '4', 'end_lineno': '7', 'end_col_offset': '30'}
+>>> xml_tree.xpath("./body/FunctionDef[name='a_function']/body/FunctionDef[name='a_subfunction']")[0].attrib
+{'lineno': '6', 'col_offset': '4', 'end_lineno': '7', 'end_col_offset': '30'}
 
 >>> # The above can be made simpler, since there's only one function called `a_subfunction`:
->>> xml_tree.xpath("//FunctionDef[@name='a_subfunction']")[0].attrib
-{'name': 'a_subfunction', 'lineno': '6', 'col_offset': '4', 'end_lineno': '7', 'end_col_offset': '30'}
+>>> xml_tree.xpath("//FunctionDef[name='a_subfunction']")[0].attrib
+{'lineno': '6', 'col_offset': '4', 'end_lineno': '7', 'end_col_offset': '30'}
 
 >>> # Get all of the methods within `SomeClass`:
->>> xml_tree.xpath("./body/ClassDef[@name='SomeClass']//FunctionDef")
+>>> xml_tree.xpath("./body/ClassDef[name='SomeClass']//FunctionDef")
 [<Element FunctionDef at 0x7f89785fcd80>, <Element FunctionDef at 0x7f89780e4200>]
 ```
+
+Use the `source()`, `file_source()` and `module_source()` functions to get source code for the given xpath query:
+
+```python
+>>> print(file_source("code.py", "//FunctionDef[name='a_subfunction']")[0])
+def a_subfunction(arg1, kwarg1=None):
+    print("Hello, World!")
+```
+
+The first arguments to these three functions differ:
+- `source()` - the actual code as a string
+- `file_source()` - a string filesystem path to the source file
+- `module_source()` - an importable module path as a string, or the improted module object itself
+
+The second argument is always the xpath query string, and you may set `dedent=False` to preserve the indentation.

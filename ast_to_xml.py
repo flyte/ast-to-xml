@@ -1,8 +1,11 @@
 import ast
+import textwrap
+from importlib import import_module
+from types import ModuleType
 
 from lxml import etree as ET
 
-ATTRS = ("id", "name", "lineno", "col_offset", "end_lineno", "end_col_offset")
+ATTRS = ("lineno", "col_offset", "end_lineno", "end_col_offset")
 
 
 def ast_node_attrs(ast_node):
@@ -42,3 +45,37 @@ def visit_node(ast_node, parent_xml_node=None):
             node.text = str(value)
 
     return xml_node
+
+
+def source(src, xpath, dedent=True):
+    ast_tree = ast.parse(src)
+    xml_tree = visit_node(ast_tree)
+
+    src_lines = src.split("\n")
+    sources = []
+    for node in xml_tree.xpath(xpath):
+        try:
+            src = "\n".join(
+                src_lines[int(node.attrib["lineno"]) - 1 : int(node.attrib["end_lineno"])]
+            )
+        except AttributeError:
+            continue
+        if dedent:
+            src = textwrap.dedent(src)
+        sources.append(src)
+
+    return sources
+
+
+def file_source(src_path, *args, **kwargs):
+    with open(src_path) as src_file:
+        src = src_file.read()
+    return source(src, *args, **kwargs)
+
+
+def module_source(module_or_path, *args, **kwargs):
+    if isinstance(module_or_path, ModuleType):
+        module = module_or_path
+    else:
+        module = import_module(module_or_path)
+    return file_source(module.__file__, *args, **kwargs)
