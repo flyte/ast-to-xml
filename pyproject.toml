@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ast-to-xml"
-version = "0.2.2"
+version = "0.2.3"
 description = "Converts a Python abstract source tree (AST) to an XML representation. Uses lxml to enable full XPath searching."
 authors = ["Ellis Percival <ast-to-xml@failcode.co.uk>"]
 license = "MIT"
