@@ -47,9 +47,27 @@ def visit_node(ast_node, parent_xml_node=None):
     return xml_node
 
 
-def source(src, xpath, dedent=True):
+def xml(src):
     ast_tree = ast.parse(src)
-    xml_tree = visit_node(ast_tree)
+    return visit_node(ast_tree)
+
+
+def file_xml(src_path):
+    with open(src_path) as src_file:
+        src = src_file.read()
+    return xml(src)
+
+
+def module_xml(module_or_path):
+    if isinstance(module_or_path, ModuleType):
+        module = module_or_path
+    else:
+        module = import_module(module_or_path)
+    return file_xml(module.__file__)
+
+
+def source(src, xpath, dedent=True):
+    xml_tree = xml(src)
 
     src_lines = src.split("\n")
     sources = []
