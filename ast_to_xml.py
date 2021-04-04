@@ -66,16 +66,30 @@ def module_xml(module_or_path):
     return file_xml(module.__file__)
 
 
-def source(src, xpath, dedent=True):
+def source(src, xpath, until_xpath=None, dedent=True):
     xml_tree = xml(src)
 
     src_lines = src.split("\n")
     sources = []
+    until_lineno = None
+    if until_xpath is not None:
+        until = xml_tree.xpath(until_xpath)
+        assert len(until) == 1, "until_xpath must return only one result"
+        until_lineno = int(until[0].attrib["lineno"]) - 1
     for node in xml_tree.xpath(xpath):
         try:
-            src = "\n".join(
-                src_lines[int(node.attrib["lineno"]) - 1 : int(node.attrib["end_lineno"])]
-            )
+            start_lineno = int(node.attrib["lineno"]) - 1
+            if until_lineno is not None:
+                if until_lineno < start_lineno:
+                    raise ValueError(
+                        f"until_lineno ({until_lineno}) must not be lower than "
+                        f"start_lineno ({start_lineno})"
+                    )
+                end_lineno = until_lineno
+            else:
+                end_lineno = int(node.attrib["end_lineno"])
+
+            src = "\n".join(src_lines[start_lineno:end_lineno])
         except AttributeError:
             continue
         if dedent:
